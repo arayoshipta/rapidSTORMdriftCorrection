@@ -1,0 +1,18 @@
+This script can correct drift of supreresolution image analyzed by rapidSTORM.
+
+1 crop fiducial image from original image (for example, using ImageJ's crop)
+2 perform rapidSTORM analysis
+  a) choose user level to Intermediate
+  b) Input minimum spot distance value to the size of the image in order to avoid multiple particle detection in fiducial image.
+  c) In output options, choose "Localization file" from side menu and check "Output only Malk fields (x,y,z,t,I)
+
+3 perform rapidSTORM for whole image. Localization file should be extracted.
+
+4 Run this macro on ImageJ
+  a) Choose localization file for whole image
+  b) In dialog, input parameters
+  c) Load fiducial localization file whne you checked "Do drift correction"
+
+5 Superresolution images will be reconstruced. Each pixel value contains each particle counts.
+
+2013.08.06 Yoshiyuki Arai
