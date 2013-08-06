@@ -32,35 +32,43 @@ macro rapidSTROMreconstructor {
 		//drifthdr = split(datatxt[0]);
 		for(i=1;i<driftdatatxt.length;i++) {
 			dline = split(driftdatatxt[i]," "); // split each column by " "
-			if (dline[2] == 0 ) {
+			if (i == 1 ) {
 				idx=parseFloat(dline[0]); // get initial value as reference
-				idy=parseFloat(dline[1]); 
+				idy=parseFloat(dline[1]);
+				df[0]=parseInt(dline[2]);
 			}
-			if (dline[2] == i-1) {
+			if (i != 1) {
 				dx[i-1]=parseFloat(dline[0])-idx; // put drift x,y subtracted data 
 				dy[i-1]=parseFloat(dline[1])-idy;
 				df[i-1]=parseInt(dline[2]);
 			}
+			//print("i-1"+(i-1)+":dx="+dx[i-1]+", dy="+dy[i-1]+"df="+df[i-1]);
 		}
 	}
 	newImage("STORM","16-bit black",round(w*1000/ps),round(h*1000/ps),1); // create image
 	run("Set Scale...", "distance=1 known="+ps+" pixel=1 unit=nm"); // set scale
-
+	cnt=0;
 	for(i=1;i<(datatxt.length);i++) {
-		
 		line=split(datatxt[i]," ");
 		x=parseFloat(line[0]);
 		y=parseFloat(line[1]);
 		f=parseInt(line[2]);
 		sx=x/ps; // interpolate raw data in pixels
 		sy=y/ps;
-		if(dc && df[f]==f) {
+		print("f="+f+",df="+df[cnt]+",cnt="+cnt);
+		if(dc && df[cnt]==f) {
 			sx=sx-dx[f]/ps; // drift correction
 			sy=sy-dy[f]/ps;
 			//print(i+" frame:"+df[i-1]+"dx="+dx[i-1]+",dy="+dy[i-1]);
+			val = getPixel(round(sx),round(sy)); // get pixel value
+			setPixel(round(sx),round(sy),val+1); // add pixel value
+		} else if (dc && df[cnt]<f) {
+			cnt++;
+		} else if (!dc) {
+			val = getPixel(round(sx),round(sy)); // get pixel value
+			setPixel(round(sx),round(sy),val+1); // add pixel value
 		}
-		val = getPixel(round(sx),round(sy)); // get pixel value
-		setPixel(round(sx),round(sy),val+1); // add pixel value
+
 	}
 	run("Enhance Contrast", "saturated=0.35"); // auto enhance
 }
