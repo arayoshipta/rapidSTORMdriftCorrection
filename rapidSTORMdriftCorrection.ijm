@@ -32,7 +32,7 @@ macro rapidSTROMreconstructor {
 		//drifthdr = split(datatxt[0]);
 		for(i=1;i<driftdatatxt.length;i++) {
 			dline = split(driftdatatxt[i]," "); // split each column by " "
-			if (i == 1 ) {
+			if (i == 1 ) { // initial values are used for fiducial point
 				idx=parseFloat(dline[0]); // get initial value as reference
 				idy=parseFloat(dline[1]);
 				df[0]=parseInt(dline[2]);
@@ -47,7 +47,7 @@ macro rapidSTROMreconstructor {
 	}
 	newImage("STORM","16-bit black",round(w*1000/ps),round(h*1000/ps),1); // create image
 	run("Set Scale...", "distance=1 known="+ps+" pixel=1 unit=nm"); // set scale
-	cnt=0;
+	cnt=0; // counter for drfit-correction data
 	for(i=1;i<(datatxt.length);i++) {
 		line=split(datatxt[i]," ");
 		x=parseFloat(line[0]);
@@ -55,7 +55,7 @@ macro rapidSTROMreconstructor {
 		f=parseInt(line[2]);
 		sx=x/ps; // interpolate raw data in pixels
 		sy=y/ps;
-		print("f="+f+",df="+df[cnt]+",cnt="+cnt);
+		//print("f="+f+",df="+df[cnt]+",cnt="+cnt);
 		if(dc && df[cnt]==f) {
 			sx=sx-dx[f]/ps; // drift correction
 			sy=sy-dy[f]/ps;
@@ -63,7 +63,7 @@ macro rapidSTROMreconstructor {
 			val = getPixel(round(sx),round(sy)); // get pixel value
 			setPixel(round(sx),round(sy),val+1); // add pixel value
 		} else if (dc && df[cnt]<f) {
-			cnt++;
+			cnt++; // if df[cnt] value is less than f, increase cnt value
 		} else if (!dc) {
 			val = getPixel(round(sx),round(sy)); // get pixel value
 			setPixel(round(sx),round(sy),val+1); // add pixel value
